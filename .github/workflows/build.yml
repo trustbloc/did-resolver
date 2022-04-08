@@ -1,0 +1,117 @@
+#
+# Copyright SecureKey Technologies Inc. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+name: Build
+on:
+  push:
+  pull_request:
+jobs:
+  unitTest:
+    name: Unit test
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    steps:
+      - name: Setup Go 1.17
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+        id: go
+
+      - uses: actions/checkout@v2
+
+      - name: Run unit test
+        timeout-minutes: 15
+        run: make unit-test
+
+      - name: Upload coverage to Codecov
+        timeout-minutes: 10
+        if: matrix.os == 'ubuntu-latest' && github.repository == 'trustbloc/did-resolver'
+        uses: codecov/codecov-action@v1.3.1
+        with:
+          file: ./coverage.out
+
+  checks:
+    name: Checks
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Go 1.17
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+
+      - uses: actions/checkout@v2
+
+      - name: Run checks
+        timeout-minutes: 10
+        run: make checks
+
+  publish:
+    name: Publish image
+    if: github.event_name == 'push' && (github.repository == 'trustbloc/did-resolver' && github.ref == 'refs/heads/main')
+    needs: [checks, unitTest]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Setup Go 1.17
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+
+      - uses: actions/checkout@v2
+        with: { fetch-depth: 0 }
+
+      - name: Get current published version
+        run: |
+          TAG=$(git describe --tags --always `git rev-list --tags --max-count=1`)
+          VERSION=$(git rev-parse --short=7 HEAD)
+          if [[ $TAG == $VERSION ]]; then
+              TAG=v0.0.0
+          fi
+          echo "CURRENT_SEMVER=${TAG:1}" >> $GITHUB_ENV
+
+      - name: Bump published version
+        id: bump_version
+        uses: christian-draeger/increment-semantic-version@1.0.2
+        with:
+          current-version: "${{ env.CURRENT_SEMVER }}"
+          # TODO: needs to be configurable https://github.com/christian-draeger/increment-semantic-version#input--output-examples
+          version-fragment: 'bug'
+
+      - name: Set ENV vars
+        run: |
+          VERSION=$(git rev-parse --short=7 HEAD)
+          echo "IMAGE_TAG"=v${{ steps.bump_version.outputs.next-version }}-snapshot-$VERSION >> $GITHUB_ENV
+          echo "DID_RESOLVER_IMAGE_PREFIX"=ghcr.io/trustbloc-cicd/did-resolver >> $GITHUB_ENV
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to Github Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.CR_USER }}
+          password: ${{ secrets.CR_PAT }}
+
+      - name: Build and Push container did resolver image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./images/did-rest/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            ALPINE_VER=3.15
+            GO_VER=1.17
+          push: true
+          tags: |
+            ${{ env.DID_RESOLVER_IMAGE_PREFIX }}:${{ env.IMAGE_TAG }}
+            ${{ env.DID_RESOLVER_IMAGE_PREFIX }}:latest
