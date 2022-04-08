@@ -3,7 +3,7 @@
 [![Godocs](https://img.shields.io/badge/godoc-reference-blue.svg)](https://godoc.org/github.com/trustbloc/did-resolver)
 
 [![Build Status](https://github.com/trustbloc/did-resolver/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/trustbloc/did-resolver/actions/workflows/build.yml)
-[![codecov](https://codecov.io/gh/trustbloc/did-resolver/branch/main/graph/badge.svg)](https://codecov.io/gh/trustbloc/did-resolver)
+[![codecov](https://codecov.io/gh/trustbloc/did-resolver/branch/main/graph/badge.svg?token=M2BS1DRKCX)](https://codecov.io/gh/trustbloc/did-resolver)
 [![Go Report Card](https://goreportcard.com/badge/github.com/trustbloc/did-resolver)](https://goreportcard.com/report/github.com/trustbloc/did-resolver)
 
 # did-resolver
