@@ -7,7 +7,6 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/trustbloc/did-resolver)](https://goreportcard.com/report/github.com/trustbloc/did-resolver)
 
 # did-resolver
-
 Resolver DID's.
 
 ## Contributing
