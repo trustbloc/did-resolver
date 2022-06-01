@@ -8,7 +8,7 @@ go 1.17
 
 require (
 	github.com/gorilla/mux v1.8.0
-	github.com/hyperledger/aries-framework-go v0.1.9-0.20220412155017-81442062e607
+	github.com/hyperledger/aries-framework-go v0.1.9-0.20220531182402-04bfea80427b
 	github.com/rs/cors v1.7.0
 	github.com/spf13/cobra v1.3.0
 	github.com/stretchr/testify v1.7.0
@@ -32,8 +32,8 @@ require (
 	github.com/google/tink/go v1.6.1 // indirect
 	github.com/google/trillian v1.3.14-0.20210520152752-ceda464a95a3 // indirect
 	github.com/google/uuid v1.3.0 // indirect
-	github.com/hyperledger/aries-framework-go-ext/component/vdr/orb v1.0.0-rc.1 // indirect
-	github.com/hyperledger/aries-framework-go-ext/component/vdr/sidetree v1.0.0-rc.1 // indirect
+	github.com/hyperledger/aries-framework-go-ext/component/vdr/orb v1.0.0-rc.1.0.20220530120019-3080f681b76c // indirect
+	github.com/hyperledger/aries-framework-go-ext/component/vdr/sidetree v1.0.0-rc.1.0.20220530114906-35b469518049 // indirect
 	github.com/hyperledger/aries-framework-go/component/storageutil v0.0.0-20220330140627-07042d78580c // indirect
 	github.com/hyperledger/aries-framework-go/spi v0.0.0-20220330140627-07042d78580c // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
@@ -42,6 +42,7 @@ require (
 	github.com/kilic/bls12-381 v0.1.1-0.20210503002446-7b7597926c69 // indirect
 	github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1 // indirect
 	github.com/minio/sha256-simd v0.1.1 // indirect
+	github.com/mitchellh/mapstructure v1.4.3 // indirect
 	github.com/mr-tron/base58 v1.2.0 // indirect
 	github.com/multiformats/go-base32 v0.0.3 // indirect
 	github.com/multiformats/go-base36 v0.1.0 // indirect
