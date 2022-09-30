@@ -18,6 +18,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/hyperledger/aries-framework-go-ext/component/vdr/orb"
 	diddoc "github.com/hyperledger/aries-framework-go/pkg/doc/did"
+	vdrapi "github.com/hyperledger/aries-framework-go/pkg/framework/aries/api/vdr"
 	"github.com/hyperledger/aries-framework-go/pkg/vdr/key"
 	"github.com/hyperledger/aries-framework-go/pkg/vdr/web"
 	"github.com/trustbloc/edge-core/pkg/log"
@@ -68,8 +69,14 @@ func New(config *Config) (*Operation, error) {
 	svc := &Operation{
 		ruleProvider: config.RuleProvider,
 		keyVDRI:      config.KeyVDRI,
-		webVDR:       web.New(),
-		orbVDR:       orbVDR,
+		webVDR: &webVDR{
+			http: &http.Client{
+				Transport: &http.Transport{
+					TLSClientConfig: config.TLSConfig,
+				}},
+			VDR: web.New(),
+		},
+		orbVDR: orbVDR,
 		httpClient: &http.Client{
 			Transport: &http.Transport{TLSClientConfig: config.TLSConfig}},
 	}
@@ -89,7 +96,7 @@ type Config struct {
 type Operation struct {
 	ruleProvider rules.Provider
 	keyVDRI      key.VDR
-	webVDR       *web.VDR
+	webVDR       vdrapi.VDR
 	orbVDR       *orb.VDR
 	httpClient   httpClient
 }
@@ -241,4 +248,18 @@ func writeErrorResponse(rw http.ResponseWriter, status int, msg string) {
 // errorResponse to send error message in the response
 type errorResponse struct {
 	Message string `json:"errMessage,omitempty"`
+}
+
+type webVDR struct {
+	http *http.Client
+	*web.VDR
+}
+
+func (w *webVDR) Read(didID string, opts ...vdrapi.DIDMethodOption) (*diddoc.DocResolution, error) {
+	docRes, err := w.VDR.Read(didID, append(opts, vdrapi.WithOption(web.HTTPClientOpt, w.http))...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read did web: %w", err)
+	}
+
+	return docRes, nil
 }
